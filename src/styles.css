@@ -46,15 +46,14 @@ code {
 ul {
   padding-inline-start: 20px;
 }
-
-* {
-  box-sizing: border-box;
+li {
+  font-size: 1rem;
+  margin: 5% 0;
+  list-style: none;
 }
-
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
+button {
+  font-size: inherit;
+  font-family: inherit;
 }
 /* .square 선택자는 className 프로퍼티가 square로 설정된 모든 컴포넌트의 스타일을 정의 */
 .square {
