@@ -11,9 +11,9 @@ function Square({ value, onSquareClick, check }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay, currentMove}) {
+function Board({ xIsNext, squares, onPlay, currentMove }) {
   const { winner, winningIdxs } = getWinnerAndIdxs(squares);
-  function handleClick(i) {
+  function handleClick(i, location) {
     // 이미 둔 수 덮어쓰기 방지 또는 승자가 정해졌는 지 확인
     if (squares[i] || winner) {
       return;
@@ -24,12 +24,14 @@ function Board({ xIsNext, squares, onPlay, currentMove}) {
     } else {
       nextSquares[i] = 'O';
     }
-    onPlay(nextSquares);
+    onPlay(nextSquares, location);
   }
 
   const status = winner
     ? '승자: ' + winner
-    : (currentMove === 9 ? '무승부' : '다음 선수: ' + (xIsNext ? 'X' : 'O'));
+    : currentMove === 9
+    ? '무승부'
+    : '다음 선수: ' + (xIsNext ? 'X' : 'O');
 
   const rows = Array.from(Array(3), () => Array(3).fill(0)).map(
     (row, rowIdx) => {
@@ -38,12 +40,13 @@ function Board({ xIsNext, squares, onPlay, currentMove}) {
           {row.map((_, colIdx) => {
             const squareIdx = rowIdx * 3 + colIdx;
             const check = winningIdxs.includes(squareIdx);
+            const location = [rowIdx + 1, colIdx + 1];
             return (
               <Square
                 key={squareIdx}
                 value={squares[squareIdx]}
                 check={check}
-                onSquareClick={() => handleClick(squareIdx)}
+                onSquareClick={() => handleClick(squareIdx, location)}
               />
             );
           })}
@@ -64,14 +67,16 @@ export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0); // 사용자가 보고 있는 단계의 수(move)
   const [ascending, setAscending] = useState(true);
+  const [lastLocations, setLastLocations] = useState([[null, null]]);
   const xIsNext = currentMove % 2 === 0; // (동기화) 현재 선택한 수가 홀수일 때, 다음 선수는 O
   const currentSquares = history[currentMove]; // 현재 선택한 수 렌더링 하도록
 
   // 게임 업데이트를 위해 Board 컴포넌트가 호출할 예정
-  function handlePlay(nextSquares) {
+  function handlePlay(nextSquares, location) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    setLastLocations([...lastLocations.slice(0, currentMove + 1), location]);
   }
 
   function jumpTo(nextMove) {
@@ -82,14 +87,25 @@ export default function Game() {
   const moves = history.map((squares, move) => {
     let description;
     if (move > 0) {
-      description = '#' + move + '의 수로 가기';
+      description =
+        '#' +
+        move +
+        '의 수로 가기' +
+        ` (${lastLocations[move][0]}행, ${lastLocations[move][1]}열)`;
     } else {
       description = '게임 시작지점으로 가기';
     }
 
     if (move === currentMove) {
       if (move === 0) return <li key={move}>{'시작지점에 있습니다.'}</li>;
-      return <li key={move}>{'#' + move + '의 수에 있습니다.'}</li>;
+      return (
+        <li key={move}>
+          {'#' +
+            move +
+            '의 수에 있습니다.' +
+            ` (${lastLocations[move][0]}행, ${lastLocations[move][1]}열)`}
+        </li>
+      );
     }
 
     return (
