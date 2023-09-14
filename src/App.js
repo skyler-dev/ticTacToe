@@ -11,7 +11,7 @@ function Square({ value, onSquareClick, check }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay}) {
+function Board({ xIsNext, squares, onPlay, currentMove}) {
   const { winner, winningIdxs } = getWinnerAndIdxs(squares);
   function handleClick(i) {
     // 이미 둔 수 덮어쓰기 방지 또는 승자가 정해졌는 지 확인
@@ -29,7 +29,7 @@ function Board({ xIsNext, squares, onPlay}) {
 
   const status = winner
     ? '승자: ' + winner
-    : '다음 선수: ' + (xIsNext ? 'X' : 'O');
+    : (currentMove === 9 ? '무승부' : '다음 선수: ' + (xIsNext ? 'X' : 'O'));
 
   const rows = Array.from(Array(3), () => Array(3).fill(0)).map(
     (row, rowIdx) => {
@@ -105,6 +105,7 @@ export default function Game() {
         <Board
           xIsNext={xIsNext}
           squares={currentSquares}
+          currentMove={currentMove}
           onPlay={handlePlay}
         />
       </div>
