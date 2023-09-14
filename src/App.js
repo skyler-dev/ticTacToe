@@ -29,24 +29,29 @@ function Board({ xIsNext, squares, onPlay }) {
     ? '승자: ' + winner
     : '다음 선수: ' + (xIsNext ? 'X' : 'O');
 
+  const rows = Array.from(Array(3), () => Array(3).fill(0)).map(
+    (row, rowIdx) => {
+      return (
+        <div key={rowIdx} className='board-row'>
+          {row.map((_, colIdx) => {
+            const squareIdx = rowIdx * 3 + colIdx;
+            return (
+              <Square
+                key={squareIdx}
+                value={squares[squareIdx]}
+                onSquareClick={() => handleClick(squareIdx)}
+              />
+            );
+          })}
+        </div>
+      );
+    }
+  );
+
   return (
     <>
       <div className='status'>{status}</div>
-      <div className='board-row'>
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className='board-row'>
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className='board-row'>
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
+      {rows}
     </>
   );
 }
@@ -77,14 +82,10 @@ export default function Game() {
       description = '게임 시작으로 가기';
     }
 
-    if(move === currentMove){
-      return (
-        <li key={move}>
-          {'#' + move + '의 수에 있습니다.'}
-        </li>
-      )
-    }    
-    
+    if (move === currentMove) {
+      return <li key={move}>{'#' + move + '의 수에 있습니다.'}</li>;
+    }
+
     return (
       <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
