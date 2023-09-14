@@ -88,3 +88,6 @@ button {
 .game-info {
   margin-left: 20px;
 }
+.winning-square {
+  background: yellow;
+}

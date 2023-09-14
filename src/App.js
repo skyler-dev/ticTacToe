@@ -1,17 +1,21 @@
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, check }) {
   return (
-    <button className='square' onClick={onSquareClick}>
+    <button
+      className={!check ? 'square' : 'square winning-square'}
+      onClick={onSquareClick}
+    >
       {value}
     </button>
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay}) {
+  const { winner, winningIdxs } = getWinnerAndIdxs(squares);
   function handleClick(i) {
     // 이미 둔 수 덮어쓰기 방지 또는 승자가 정해졌는 지 확인
-    if (squares[i] || calculateWinner(squares)) {
+    if (squares[i] || winner) {
       return;
     }
     const nextSquares = squares.slice();
@@ -23,8 +27,6 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  // 승자 선언
-  const winner = calculateWinner(squares);
   const status = winner
     ? '승자: ' + winner
     : '다음 선수: ' + (xIsNext ? 'X' : 'O');
@@ -35,10 +37,12 @@ function Board({ xIsNext, squares, onPlay }) {
         <div key={rowIdx} className='board-row'>
           {row.map((_, colIdx) => {
             const squareIdx = rowIdx * 3 + colIdx;
+            const check = winningIdxs.includes(squareIdx);
             return (
               <Square
                 key={squareIdx}
                 value={squares[squareIdx]}
+                check={check}
                 onSquareClick={() => handleClick(squareIdx)}
               />
             );
@@ -84,7 +88,7 @@ export default function Game() {
     }
 
     if (move === currentMove) {
-      if(move === 0) return <li key={move}>{'시작지점에 있습니다.'}</li>;
+      if (move === 0) return <li key={move}>{'시작지점에 있습니다.'}</li>;
       return <li key={move}>{'#' + move + '의 수에 있습니다.'}</li>;
     }
 
@@ -98,12 +102,14 @@ export default function Game() {
   return (
     <div className='game'>
       <div className='game-board'>
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <Board
+          xIsNext={xIsNext}
+          squares={currentSquares}
+          onPlay={handlePlay}
+        />
       </div>
       <div className='game-info'>
-        <button onClick={() => setAscending(!ascending)}>
-          정렬 반전하기
-        </button>
+        <button onClick={() => setAscending(!ascending)}>정렬 반전하기</button>
         <ol>{ascending ? moves : moves.toReversed()}</ol>
       </div>
     </div>
@@ -115,7 +121,7 @@ export default function Game() {
  * Board 전이나 후에 정의하는 지 여부는 중요하지 않다.
  * 컴포넌트를 편집할 때마다 스크롤해서 헬퍼함수를 지나갈 필요가 없도록 마지막에 배치한다.
  */
-function calculateWinner(squares) {
+function getWinnerAndIdxs(squares) {
   // 가로 새로 대각선 idex
   const lines = [
     [0, 1, 2],
@@ -130,8 +136,8 @@ function calculateWinner(squares) {
   for (const line of lines) {
     const [a, b, c] = line;
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], winningIdxs: [a, b, c] };
     }
   }
-  return null;
+  return { winner: null, winningIdxs: [null, null, null] };
 }
