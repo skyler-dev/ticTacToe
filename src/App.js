@@ -80,10 +80,11 @@ export default function Game() {
     if (move > 0) {
       description = '#' + move + '의 수로 가기';
     } else {
-      description = '게임 시작으로 가기';
+      description = '게임 시작지점으로 가기';
     }
 
     if (move === currentMove) {
+      if(move === 0) return <li key={move}>{'시작지점에 있습니다.'}</li>;
       return <li key={move}>{'#' + move + '의 수에 있습니다.'}</li>;
     }
 
