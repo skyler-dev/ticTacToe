@@ -59,6 +59,7 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0); // 사용자가 보고 있는 단계의 수(move)
+  const [ascending, setAscending] = useState(true);
   const xIsNext = currentMove % 2 === 0; // (동기화) 현재 선택한 수가 홀수일 때, 다음 선수는 O
   const currentSquares = history[currentMove]; // 현재 선택한 수 렌더링 하도록
 
@@ -99,7 +100,10 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className='game-info'>
-        <ol>{moves}</ol>
+        <button onClick={() => setAscending(!ascending)}>
+          정렬 반전하기
+        </button>
+        <ol>{ascending ? moves : moves.toReversed()}</ol>
       </div>
     </div>
   );
